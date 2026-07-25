@@ -52,6 +52,29 @@ app.post('/api/v1/movies', (req, res)=>{
         })
     })
 })
+//
+app.patch('/api/v1/movies/:id', (req, res)=>{
+    let id = req.params.id * 1;
+    let movieUpdate = movies.find(el => el.id === id);
+    if (movieUpdate === undefined){
+        return res.status(404).json({
+            status: "fail",
+            message: "Movie with ID " + id + " not found"
+        })
+    }
+    let index = movies.indexOf(movieUpdate);
+
+    Object.assign(movieUpdate, req.body);
+    movies[index] = movieUpdate;
+    fs.writeFile('./data/movies.js', JSON.stringify(movies), err=>{
+        res.status(200).json({
+            status: "success",
+            data:{
+                movie: movieUpdate
+            }
+        })
+    })
+})
 
 //Create a Server
 const port = 3000;

@@ -1,1 +1,1 @@
-[{"id":1,"name":"Die Hard","releaseYear":1998,"duration":90},{"id":2,"name":"Expandables","releaseYear":2000,"duration":80},{"id":3,"name":"Interstellar","releaseYear":2014,"duration":120},{"id":4,"name":"Viverium","releaseYear":"2026","duration":130}]
+[{"id":1,"name":"Die Hard","releaseYear":1998,"duration":90},{"id":2,"name":"Expandables","releaseYear":"2016","duration":135},{"id":3,"name":"Interstellar","releaseYear":2014,"duration":120},{"id":4,"name":"Viverium","releaseYear":"2016","duration":130}]
