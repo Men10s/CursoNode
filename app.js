@@ -1,13 +1,14 @@
 //Import package
 
-const { count } = require('console');
-const express = require('express');
-const fs = require('fs');
+import express from 'express';
+import fs from 'fs';
 let app = express();
 let movies = JSON.parse(fs.readFileSync('./data/movies.js'));
 
-//GET-/api/v1/movies
-app.get('/api/v1/movies', (req, res)=>{
+app.use(express.json());
+
+//Route Handler Functions
+const getAllMovies = (req, res)=>{
     res.status(200).json({
         status: "sucess",
         count: movies.length,
@@ -15,9 +16,9 @@ app.get('/api/v1/movies', (req, res)=>{
             movies: movies
         }
     })
-})
-//GET-/api/v1/movies/id
-app.get('/api/v1/movies/:id', (req, res)=>{
+};
+
+const getAnMovie = (req, res)=>{
     const id = req.params.id * 1;
     const movie = movies.find(el => el.id === id);
 
@@ -33,11 +34,9 @@ app.get('/api/v1/movies/:id', (req, res)=>{
             movie: movie
         }
     })
-});
+};
 
-//POST - api/v1/movies
-app.use(express.json());
-app.post('/api/v1/movies', (req, res)=>{
+const postMovie = (req, res)=>{
     console.log(req.body);
 
     const newId = movies[movies.length - 1].id + 1;
@@ -51,9 +50,9 @@ app.post('/api/v1/movies', (req, res)=>{
             }
         })
     })
-})
-//
-app.patch('/api/v1/movies/:id', (req, res)=>{
+};
+
+const patchtMovie =  (req, res)=>{
     let id = req.params.id * 1;
     let movieUpdate = movies.find(el => el.id === id);
     if (movieUpdate === undefined){
@@ -74,7 +73,48 @@ app.patch('/api/v1/movies/:id', (req, res)=>{
             }
         })
     })
-})
+};
+
+const deleteMovie =  (req, res)=>{
+    
+    let id = req.params.id * 1;
+    let movieDelete = movies.find(el => el.id === id);
+
+    if (movieDelete === undefined){
+        return res.status(404).json({
+            status: "fail",
+            message: "Movie with ID " + id + " not found"
+        })
+    }
+    
+    const index = movies.indexOf(movieDelete);
+
+    movies.splice(index, 1);
+    fs.writeFile('./data/movies.js', JSON.stringify(movies), err=>{
+        res.status(200).json({
+            status: "success",
+            data:{
+                movie: movieDelete
+            }
+        })
+    })
+}
+//GET-/api/v1/movies
+
+app.get('/api/v1/movies', getAllMovies)
+
+//GET-/api/v1/movies/id
+
+app.get('/api/v1/movies/:id', getAnMovie);
+
+//POST - api/v1/movies
+app.post('/api/v1/movies', postMovie);
+
+//patch - api/v1/movies/id
+app.patch('/api/v1/movies/:id', patchtMovie)
+
+//delete - api/v1/movies/id
+app.delete('/api/v1/movies/:id', deleteMovie)
 
 //Create a Server
 const port = 3000;
