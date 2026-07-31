@@ -2,15 +2,31 @@
 
 import express from 'express';
 import fs from 'fs';
+import morgan from 'morgan';
+
 let app = express();
 let movies = JSON.parse(fs.readFileSync('./data/movies.js'));
 
+const logger = function(req, res, next){
+    console.log('Custom middleware called');
+    next();
+}
+
 app.use(express.json());
+app.use(morgan('combined'));
+app.use(logger)
+app.use((req, res, next)=>{
+    req.requestedAt = new Date().toISOString();
+    next();
+})
 
 //Route Handler Functions
+
+//GET-/api/v1/movies
 const getAllMovies = (req, res)=>{
     res.status(200).json({
         status: "sucess",
+        requestedAt: req.requestedAt,
         count: movies.length,
         data:{
             movies: movies
@@ -18,6 +34,7 @@ const getAllMovies = (req, res)=>{
     })
 };
 
+//GET-/api/v1/movies/id
 const getAnMovie = (req, res)=>{
     const id = req.params.id * 1;
     const movie = movies.find(el => el.id === id);
@@ -36,6 +53,7 @@ const getAnMovie = (req, res)=>{
     })
 };
 
+//POST - api/v1/movies
 const postMovie = (req, res)=>{
     console.log(req.body);
 
@@ -52,6 +70,7 @@ const postMovie = (req, res)=>{
     })
 };
 
+//patch - api/v1/movies/id
 const patchtMovie =  (req, res)=>{
     let id = req.params.id * 1;
     let movieUpdate = movies.find(el => el.id === id);
@@ -75,6 +94,7 @@ const patchtMovie =  (req, res)=>{
     })
 };
 
+//delete - api/v1/movies/id
 const deleteMovie =  (req, res)=>{
     
     let id = req.params.id * 1;
@@ -99,22 +119,19 @@ const deleteMovie =  (req, res)=>{
         })
     })
 }
-//GET-/api/v1/movies
 
-app.get('/api/v1/movies', getAllMovies)
+const moviesBuffer = express.Router();
 
-//GET-/api/v1/movies/id
+moviesBuffer.route( '/')
+   .get(getAllMovies)
+   .post(postMovie)
 
-app.get('/api/v1/movies/:id', getAnMovie);
+moviesBuffer.route('/:id')
+   .get(getAnMovie)
+   .patch(patchtMovie)
+   .delete(deleteMovie);
 
-//POST - api/v1/movies
-app.post('/api/v1/movies', postMovie);
-
-//patch - api/v1/movies/id
-app.patch('/api/v1/movies/:id', patchtMovie)
-
-//delete - api/v1/movies/id
-app.delete('/api/v1/movies/:id', deleteMovie)
+app.use('/api/v1/movies',moviesBuffer)
 
 //Create a Server
 const port = 3000;
