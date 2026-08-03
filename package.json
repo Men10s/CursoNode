@@ -1,14 +1,14 @@
 {
+  "$schema": "https://json.schemastore.org/package.json",
   "name": "node-js-with-express",
   "version": "1.0.0",
   "description": "Learning Node js Express",
   "license": "ISC",
   "author": "Mendes",
-  "type": "module",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+    "server": "node server.js"
+  }, 
   "dependencies": {
     "express": "^5.2.1",
     "morgan": "^1.11.0"
