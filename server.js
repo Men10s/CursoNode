@@ -1,5 +1,6 @@
 const app = require('./app');
 
+console.log(process.env);
 //Create a Server
 
 const port = 3000;
