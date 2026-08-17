@@ -9,8 +9,11 @@ const logger = function(req, res, next){
     console.log('Custom middleware called');
     next();}
 app.use(express.json());
+
+if(process.env.NODE_ENV === 'development'){
+    app.use(morgan('dev'));
+}
 app.use(express.static('./public'))
-app.use(morgan('combined'));
 app.use(logger);
 app.use((req, res, next)=>{
     req.requestedAt = new Date().toISOString();
