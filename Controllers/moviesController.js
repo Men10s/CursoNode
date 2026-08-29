@@ -1,119 +1,102 @@
-const fs = require('fs');
-let movies = JSON.parse(fs.readFileSync('./data/movies.json'));
 
-exports.checkId = (req, res, next, value)=>{
-
-    console.log('Movie ID is ' + value);
-
-   // const id = req.params.id * 1;
-
-    const movie = movies.find(el => el.id === value * 1);
-
-  if (movie === undefined){
-        return res.status(404).json({
-            status: "fail",
-            message: "Movie with ID " + value+ " not found"
-        })
-    }
-
-    next();
-}
-//Route Handler Functions
+const Movie = require('./../Models/movieModel');
 
 //GET-/api/v1/movies
-exports.getAllMovies = (req, res)=>{
-    res.status(200).json({
-        status: "sucess",
-        requestedAt: req.requestedAt,
-        count: movies.length,
-        data:{
-            movies: movies
-        }
-    })
+exports.getAllMovies = async (req, res) => {
+
 };
+
 //GET-/api/v1/movies/id
-exports.getAnMovie = (req, res)=>{
-    const id = req.params.id * 1;
-    const movie = movies.find(el => el.id === id);
+exports.getAnMovie = async (req, res) => {
+    try {
+        const movie = await Movie.findById(req.params.id);
 
-  //  if (movie === undefined){
-  //      return res.status(404).json({
-  //          status: "fail",
-  //          message: "Movie with ID " + id + " not found"
-  //      })
-  // }
-    res.status(200).json({
-        status: "success",
-        data:{
-            movie: movie
+        if (!movie) {
+            return res.status(404).json({
+                status: 'fail',
+                message: 'No movie found with that ID'
+            });
         }
-    })
-};
-//POST - api/v1/movies
-exports.postMovie = (req, res)=>{
-    console.log(req.body);
 
-    const newId = movies[movies.length - 1].id + 1;
-    const newMovie = Object.assign({id: newId}, req.body);
-    movies.push(newMovie);
-    fs.writeFile('./data/movies.js', JSON.stringify(movies), err=>{
+        res.status(200).json({
+            status: 'success',
+            data: {
+                movie
+            }
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: 'fail',
+            message: error.message
+        });
+    }
+};
+
+//POST - api/v1/movies
+exports.postMovie = async (req, res) => {
+    try {
+        const newMovie = await Movie.create(req.body);
+
         res.status(201).json({
-            status: "success",
-            data:{
+            status: 'success',
+            data: {
                 movie: newMovie
             }
-        })
-    })
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: 'fail',
+            message: error.message
+        });
+    }
 };
+
 //patch - api/v1/movies/id
- exports.patchtMovie =  (req, res)=>{
-    let id = req.params.id * 1;
-    let movieUpdate = movies.find(el => el.id === id);
-    
-    //if (movieUpdate === undefined){
-    //    return res.status(404).json({
-    //        status: "fail",
-    //        message: "Movie with ID " + id + " not found"
-    //    })
-    //}
+exports.patchtMovie = async (req, res) => {
+    try {
+        const movie = await Movie.findByIdAndUpdate(req.params.id, req.body, {
+            new: true,
+            runValidators: true
+        });
 
-    let index = movies.indexOf(movieUpdate);
+        if (!movie) {
+            return res.status(404).json({
+                status: 'fail',
+                message: 'No movie found with that ID'
+            });
+        }
 
-    Object.assign(movieUpdate, req.body);
-    movies[index] = movieUpdate;
-    fs.writeFile('./data/movies.json', JSON.stringify(movies), err=>{
         res.status(200).json({
-            status: "success",
-            data:{
-                movie: movieUpdate
+            status: 'success',
+            data: {
+                movie
             }
-        })
-    })
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: 'fail',
+            message: error.message
+        });
+    }
 };
+
 //delete - api/v1/movies/id
-exports.deleteMovie =  (req, res)=>{
-    
-    let id = req.params.id * 1;
-    let movieDelete = movies.find(el => el.id === id);
+exports.deleteMovie = async (req, res) => {
+    try {
+        const movie = await Movie.findByIdAndDelete(req.params.id);
 
-    //if (movieDelete === undefined){
-    //    return res.status(404).json({
-    //        status: "fail",
-    //        message: "Movie with ID " + id + " not found"
-    //    })
-    //  }
-    
-    const index = movies.indexOf(movieDelete);
+        if (!movie) {
+            return res.status(404).json({
+                status: 'fail',
+                message: 'No movie found with that ID'
+            });
+        }
 
-    movies.splice(index, 1);
-    fs.writeFile('./data/movies.js', JSON.stringify(movies), err=>{
-        res.status(200).json({
-            status: "success",
-            data:{
-                movie: movieDelete
-            }
-        })
-    })
-}
- 
-
+        res.status(204).json();
+    } catch (error) {
+        res.status(400).json({
+            status: 'fail',
+            message: error.message
+        });
+    }
+};
