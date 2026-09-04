@@ -4,6 +4,22 @@ const Movie = require('./../Models/movieModel');
 //GET-/api/v1/movies
 exports.getAllMovies = async (req, res) => {
 
+    try {
+        
+        res.status(200).json({
+            status: 'success',
+            length: movies.length, 
+            data: {
+                movies
+            }
+        });
+    }
+    catch (error) {
+        res.status(400).json({
+            status: 'fail',
+            message: error.message
+        });
+    }   
 };
 
 //GET-/api/v1/movies/id
@@ -52,27 +68,25 @@ exports.postMovie = async (req, res) => {
 };
 
 //patch - api/v1/movies/id
-exports.patchtMovie = async (req, res) => {
+exports.patchtMovie =  async (req, res) => {
     try {
-        const movie = await Movie.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-            runValidators: true
-        });
-
-        if (!movie) {
+       const updatedMovie = await Movie.findByIdAndUpdate(req.params.id, req.body, {new: true, runValidators: true});
+       
+       if (!updatedMovie) {
             return res.status(404).json({
                 status: 'fail',
                 message: 'No movie found with that ID'
             });
         }
-
-        res.status(200).json({
-            status: 'success',
-            data: {
-                movie
-            }
-        });
-    } catch (error) {
+        
+       res.status(200).json({
+           status: 'success',
+           data: {
+               movie: updatedMovie
+           }
+       });
+    }
+    catch (error){
         res.status(400).json({
             status: 'fail',
             message: error.message
