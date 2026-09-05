@@ -12,14 +12,29 @@ exports.getAllMovies = async (req, res) => {
         const excludedFields = ['page', 'sort', 'limit', 'fields'];
         excludedFields.forEach(el => delete queryObj[el]);
         *************************************************/
+
         console.log(req.query);
-        let queryStr = JSON.stringify(req.query);
+        const queryParams = { ...req.query };
+        const excludedFields = ['page', 'sort', 'limit', 'fields'];
+        excludedFields.forEach(field => delete queryParams[field]);
+
+        let queryStr = JSON.stringify(queryParams);
         queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
         const queryObj = JSON.parse(queryStr);
-        console.log(queryObj);
-        const movies = await Movie.find(queryObj);
-        //find(duration: { $gte: 120 }, rating: { $gte: 7.0 }, price: { $lte: 100 }).
+        //console.log(queryObj);
 
+        let query = Movie.find(queryObj);
+        //find(duration: { $gte: 120 }, rating: { $gte: 7.0 }, price: { $lte: 100 }).
+        
+        if(req.query.sort){
+            const sortBy = req.query.sort.split(',').join(' ');
+            console.log(sortBy);
+            query = query.sort(req.query.sort);
+        }else{
+            query = query.sort('name');
+        }
+        const movies = await query;
+        
         res.status(200).json({
             status: 'success',
             length: movies.length, 
