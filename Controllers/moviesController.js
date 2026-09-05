@@ -6,11 +6,19 @@ exports.getAllMovies = async (req, res) => {
 
     try {
         
+        /*
+        Mongoose 6.0 or less does not support query string filtering directly, so we need to create a query object and remove any fields that are not relevant to the query.
         const queryObj = {...req.query};
         const excludedFields = ['page', 'sort', 'limit', 'fields'];
         excludedFields.forEach(el => delete queryObj[el]);
-
+        *************************************************/
+        console.log(req.query);
+        let queryStr = JSON.stringify(req.query);
+        queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
+        const queryObj = JSON.parse(queryStr);
+        console.log(queryObj);
         const movies = await Movie.find(queryObj);
+        //find(duration: { $gte: 120 }, rating: { $gte: 7.0 }, price: { $lte: 100 }).
 
         res.status(200).json({
             status: 'success',
