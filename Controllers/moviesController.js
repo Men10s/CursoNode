@@ -33,6 +33,13 @@ exports.getAllMovies = async (req, res) => {
         }else{
             query = query.sort('name');
         }
+        if(req.query.fields){
+            const fields = req.query.fields.split(',').join(' ');
+            console.log("fields");
+            query = query.select(fields);
+        }else{
+            query = query.select('-__v');
+        }
         const movies = await query;
         
         res.status(200).json({
