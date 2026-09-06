@@ -5,6 +5,7 @@ const fs = require('fs');
 const morgan = require('morgan');
 const moviesRouter = require('./Routes/moviesRoutes');
 let app = express();
+app.set('query parser', 'extended');
 const logger = function(req, res, next){
     console.log('Custom middleware called');
     next();}

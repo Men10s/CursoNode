@@ -1,6 +1,6 @@
 
 const Movie = require('./../Models/movieModel');
-
+const ApiFeatures = require('./Utils/ApiFeatures');
 //GET-/api/v1/movies
 
 exports.getHighestRated = (req, res, next) => {
@@ -17,55 +17,16 @@ exports.getAllMovies = async (req, res) => {
 
     try {
         const requestQuery = req.movieQuery || req.query;
-        console.log('URL:', req.originalUrl);
-        console.log('QUERY:', requestQuery);
-        /*
-        Mongoose 6.0 or less does not support query string filtering directly, so we need to create a query object and remove any fields that are not relevant to the query.
-        const queryObj = {...req.query};
-        const excludedFields = ['page', 'sort', 'limit', 'fields'];
-        excludedFields.forEach(el => delete queryObj[el]);
-        *************************************************/
+        const features = new ApiFeatures(Movie.find(), requestQuery)
+            .filter()
+            .sort()
+            .limitFields()
+            .paginate();
+        const movies = await features.query;
 
-        const queryParams = { ...requestQuery };
-        const excludedFields = ['page', 'sort', 'limit', 'fields'];
-        excludedFields.forEach(field => delete queryParams[field]);
-
-        let queryStr = JSON.stringify(queryParams);
-        queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
-        const queryObj = JSON.parse(queryStr);
-        //console.log(queryObj);
-
-        let query = Movie.find(queryObj);
-        //find(duration: { $gte: 120 }, rating: { $gte: 7.0 }, price: { $lte: 100 }).
-        
-        if(requestQuery.sort){
-            const sortBy = requestQuery.sort.split(',').join(' ');
-            console.log(sortBy);
-            query = query.sort(sortBy);
-        }else{
-            query = query.sort('name');
-        }
-        if(requestQuery.fields){
-            const fields = requestQuery.fields.split(',').join(' ');
-            console.log("fields");
-            query = query.select(fields);
-        }else{
-            query = query.select('-__v');
-        }
-
-        const page = requestQuery.page * 1 || 1;
-        const limit = requestQuery.limit * 1 || 10;
-        const skip = (page - 1) * limit;
-        query = query.skip(skip).limit(limit);
-        const movies = await query;
-        
-        if(requestQuery.page) {
-            const numMovies = await Movie.countDocuments();
-            if(skip >= numMovies) throw new Error('This page does not exist');
-        }
         res.status(200).json({
             status: 'success',
-            length: movies.length, 
+            length: movies.length,
             data: {
                 movies
             }
