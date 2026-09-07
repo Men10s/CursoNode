@@ -70,13 +70,20 @@ movieSchema.post('save', function(doc) {
   const content = `Document saved: ${doc.name} has been saved by ${doc.createdBy} at ${new Date().toISOString()}\n`;
   const logPath = path.join(__dirname, '..', 'log', 'log.txt');
   fs.appendFileSync(logPath, content);
-  next();
 });
 //Executed before the document is saved to the database
 //save or create
-movieSchema.pre('save', async function() {
-  this.name = this.name.toLowerCase();
+
+movieSchema.pre(/^find/, function() {
+  this.find({ releaseDate: { $lte: Date.now() } });
 });
+
+movieSchema.post(/^find/, function(docs) {
+  const logPath = path.join(__dirname, '..', 'log', 'log.txt');
+  const content = `Documents retrieved: ${docs.length} documents found at ${new Date().toISOString()}\n`;
+  fs.appendFileSync(logPath, content);
+}
+);
 const Movie = mongoose.model('Movie', movieSchema);
 
 module.exports = Movie;
