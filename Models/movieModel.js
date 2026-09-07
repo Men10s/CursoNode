@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-
+const fs = require('fs');
+const path = require('path');
 const movieSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -49,9 +50,33 @@ const movieSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
     select: false
+  }, 
+  createdBy: {
+    type: String,
+    required: [true, 'A movie must have a creator'],
+    default: 'Mendes',
   }
-});
+},{
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
+  }
+);
 
+movieSchema.virtual('durationInHours').get(function() {
+  return this.duration / 60;
+} );
+
+movieSchema.post('save', function(doc) {
+  const content = `Document saved: ${doc.name} has been saved by ${doc.createdBy} at ${new Date().toISOString()}\n`;
+  const logPath = path.join(__dirname, '..', 'log', 'log.txt');
+  fs.appendFileSync(logPath, content);
+  next();
+});
+//Executed before the document is saved to the database
+//save or create
+movieSchema.pre('save', async function() {
+  this.name = this.name.toLowerCase();
+});
 const Movie = mongoose.model('Movie', movieSchema);
 
 module.exports = Movie;

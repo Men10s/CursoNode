@@ -24,4 +24,15 @@ const moviesBuffer = express.Router();
 //Using Routes
 app.use('/api/v1/movies', moviesRouter)
 
+app.use((error, req, res, next) => {
+    if (error instanceof SyntaxError && error.status === 400 && error.body !== undefined) {
+        return res.status(400).json({
+            status: 'fail',
+            message: 'Invalid JSON. Escape line breaks and tabs inside strings.'
+        });
+    }
+
+    next(error);
+});
+
 module.exports = app;
