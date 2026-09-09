@@ -5,11 +5,15 @@ const movieSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'A movie must have a name'],
+    maxlength: [100, 'A movie name must have less or equal than 100 characters'],
+    minlength: [1, 'A movie name must have more or equal than 1 characters'],
     unique: true,
     trim: true,
   },
   description: {
     type: String,
+    maxlength: [500, 'A movie description must have less or equal than 500 characters'],
+    minlength: [1, 'A movie description must have more or equal than 1 characters'],
     trim: true
   },
   duration: {
@@ -18,6 +22,8 @@ const movieSchema = new mongoose.Schema({
   },
   ratings: {
     type: Number,
+    min: [1, 'Rating must be above 1.0'],
+    max: [10, 'Rating must be below 10.0'],
     default: 1.0
   },
   totalRating: { // No vídeo está "totalRating" no singular
@@ -32,6 +38,10 @@ const movieSchema = new mongoose.Schema({
   genres: {
     type: [String],
     required: [true, 'A movie must have genres'],
+    enum: {
+      values: ['Action', 'Adventure', 'Comedy', 'Crime', 'Drama', 'Fantasy', 'Historical', 'Horror', 'Mystery', 'Romance', 'Science Fiction', 'Thriller', 'Western'],
+      message: 'Genre is either: Action, Adventure, Comedy, Crime, Drama, Fantasy, Historical, Horror, Mystery, Romance, Science Fiction, Thriller, Western'
+    }
   }, 
   directors: [String],
   coverImage: {
