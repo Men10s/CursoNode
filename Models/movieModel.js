@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const fs = require('fs');
 const path = require('path');
+const validator = require('validator');
+
 const movieSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -9,6 +11,7 @@ const movieSchema = new mongoose.Schema({
     minlength: [1, 'A movie name must have more or equal than 1 characters'],
     unique: true,
     trim: true,
+    validate: [validator.isAlpha, 'Movie name must only contain characters'] 
   },
   description: {
     type: String,
@@ -22,9 +25,12 @@ const movieSchema = new mongoose.Schema({
   },
   ratings: {
     type: Number,
-    min: [1, 'Rating must be above 1.0'],
-    max: [10, 'Rating must be below 10.0'],
-    default: 1.0
+    validate:{
+      validator: function(value) {
+      return value >= 1 && value <= 10;
+    },
+    message: 'Rating ({VALUE}) must be between 1 and 10'
+  }
   },
   totalRating: { // No vídeo está "totalRating" no singular
     type: Number,
@@ -39,8 +45,8 @@ const movieSchema = new mongoose.Schema({
     type: [String],
     required: [true, 'A movie must have genres'],
     enum: {
-      values: ['Action', 'Adventure', 'Comedy', 'Crime', 'Drama', 'Fantasy', 'Historical', 'Horror', 'Mystery', 'Romance', 'Science Fiction', 'Thriller', 'Western'],
-      message: 'Genre is either: Action, Adventure, Comedy, Crime, Drama, Fantasy, Historical, Horror, Mystery, Romance, Science Fiction, Thriller, Western'
+      values: ['Action', 'Adventure','Sci-Fi', 'Comedy', 'Crime', 'Drama', 'Fantasy', 'Historical', 'Horror', 'Mystery', 'Romance', 'Science Fiction', 'Thriller', 'Western'],
+      message: 'Genre is either: Action, Adventure, Sci-Fi, Comedy, Crime, Drama, Fantasy, Historical, Horror, Mystery, Romance, Science Fiction, Thriller, Western'
     }
   }, 
   directors: [String],
