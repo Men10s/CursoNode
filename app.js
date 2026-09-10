@@ -22,7 +22,14 @@ app.use((req, res, next)=>{
 });
 const moviesBuffer = express.Router();
 //Using Routes
+
 app.use('/api/v1/movies', moviesRouter)
+app.all('/{*splat}', (req, res, next) => {
+    res.status(404).json({
+        status: 'fail',
+        message: `Can't find ${req.originalUrl} on this server!`
+    });
+})
 
 app.use((error, req, res, next) => {
     if (error instanceof SyntaxError && error.status === 400 && error.body !== undefined) {
