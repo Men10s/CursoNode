@@ -1,6 +1,6 @@
 
 const Movie = require('./../Models/movieModel');
-const ApiFeatures = require('./Utils/ApiFeatures');
+const ApiFeatures = require('../Utils/ApiFeatures');
 //GET-/api/v1/movies
 
 exports.getHighestRated = (req, res, next) => {

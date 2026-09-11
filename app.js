@@ -4,6 +4,8 @@ const express = require('express');
 const fs = require('fs');
 const morgan = require('morgan');
 const moviesRouter = require('./Routes/moviesRoutes');
+const CustomError = require('./Utils/CustomError');
+const errorControler = require('./Controllers/errorControler');
 let app = express();
 app.set('query parser', 'extended');
 const logger = function(req, res, next){
@@ -24,25 +26,23 @@ const moviesBuffer = express.Router();
 //Using Routes
 
 app.use('/api/v1/movies', moviesRouter);
+
 app.all('/{*splat}', (req, res, next) => {
     // res.status(404).json({
     //     status: 'fail',
     //     message: `Can't find ${req.originalUrl} on this server!`
     // });
 
-    const error = new Error(`Can't find ${req.originalUrl} on this server!`);
-    error.status = 'fail';
-    error.statusCode = 404;
+    // const error = new Error(`Can't find ${req.originalUrl} on this server!`);
+    // error.status = 'fail';
+    // error.statusCode = 404;
+
+    error = new CustomError(`Can't find ${req.originalUrl} on this server!`, 404);
+
     next(error);
 }) 
 
-app.use((error, req, res, next) => {
-    error.statusCode = error.statusCode || 500;
-    res.status (error.statusCode).json({
-        status: error.status || 'error',
-        message: error.message
-    });
-});
+app.use(errorControler);
 
 // app.use((error, req, res, next) => {
 //     if (error instanceof SyntaxError && error.status === 400 && error.body !== undefined) {
