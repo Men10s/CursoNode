@@ -11,7 +11,7 @@ const movieSchema = new mongoose.Schema({
     minlength: [1, 'A movie name must have more or equal than 1 characters'],
     unique: true,
     trim: true,
-    validate: [validator.isAlpha, 'Movie name must only contain characters'] 
+    //validate: [validator.isAlpha, 'Movie name must only contain characters'] 
   },
   description: {
     type: String,

@@ -5,7 +5,7 @@ const fs = require('fs');
 const morgan = require('morgan');
 const moviesRouter = require('./Routes/moviesRoutes');
 const CustomError = require('./Utils/CustomError');
-const errorControler = require('./Controllers/errorControler');
+const ErrorControler = require('./Controllers/ErrorControler');
 let app = express();
 app.set('query parser', 'extended');
 const logger = function(req, res, next){
@@ -42,7 +42,7 @@ app.all('/{*splat}', (req, res, next) => {
     next(error);
 }) 
 
-app.use(errorControler);
+app.use(ErrorControler);
 
 // app.use((error, req, res, next) => {
 //     if (error instanceof SyntaxError && error.status === 400 && error.body !== undefined) {
